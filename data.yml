@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: preceni-data-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: preceni-data
+  template:
+    metadata:
+      labels:
+        app: preceni-data
+    spec:
+      containers:
+        - image: vidvidex/preceni-data:1.0.0
+          name: preceni-data
+          # env: to be changed later
+          ports:
+            - containerPort: 3000
+              name: server
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: preceni-data-lb
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: server
+  selector:
+    app: preceni-data
