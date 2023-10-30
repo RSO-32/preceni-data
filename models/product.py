@@ -28,10 +28,10 @@ class ProductsController(Resource):
 
         for product_data in data:
             logging.info(product_data)
-            timestamp = datetime.fromisoformat(product_data["datetime"])
+            timestamp = datetime.fromisoformat(product_data["timestamp"])
             seller = product_data["seller"]
             seller_product_id = product_data["seller_product_id"]
-            seller_name = product_data["seller_name"]
+            seller_product_name = product_data["seller_product_name"]
             price = product_data["price"]
             categories = product_data["categories"]
             brand = product_data["brand"]
@@ -45,7 +45,7 @@ class ProductsController(Resource):
                 product = Product.create(
                     seller,
                     seller_product_id,
-                    seller_name,
+                    seller_product_name,
                     brand,
                     categories,
                 )
@@ -106,11 +106,11 @@ class Product:
         cursor.execute(query, (brand.id,))
         product_id = cursor.fetchone()[0]
 
-        query = "INSERT INTO product_sellers (product_id, seller_id, seller_product_id, seller_name) VALUES (%s, %s, %s, %s)"
+        query = "INSERT INTO product_sellers (product_id, seller_id, seller_product_id, seller_name) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING"
         cursor.execute(query, (product_id, seller.id, seller_product_id, seller_name))
 
         for category in categories:
-            query = "INSERT INTO product_categories (product_id, category_id) VALUES (%s, %s)"
+            query = "INSERT INTO product_categories (product_id, category_id) VALUES (%s, %s) ON CONFLICT DO NOTHING"
             cursor.execute(query, (product_id, category.id))
 
         Config.conn.commit()
