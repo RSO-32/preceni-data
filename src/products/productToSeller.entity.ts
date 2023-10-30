@@ -15,6 +15,9 @@ export class ProductToSeller {
   @Column()
   sellerProductId: string;
 
+  @Column()
+  name: string;
+
   @ManyToOne(() => Product, (product) => product.sellers)
   product: Product;
 

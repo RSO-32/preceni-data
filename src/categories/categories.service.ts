@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './category.entity';
@@ -20,5 +20,17 @@ export class CategoriesService {
 
   async remove(id: number): Promise<void> {
     await this.categoriesRepository.delete(id);
+  }
+
+  async findOrCreate(names: string[]): Promise<Category[]> {
+    const categories = [];
+    for (const name of names) {
+      Logger.log('Ensuring category: ' + name + ' exists');
+      categories.push(
+        await this.categoriesRepository.upsert({ name: name }, ['name']),
+      );
+    }
+
+    return categories;
   }
 }

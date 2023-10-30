@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Brand } from './brand.entity';
@@ -20,5 +20,20 @@ export class BrandsService {
 
   async remove(id: number): Promise<void> {
     await this.brandsRepository.delete(id);
+  }
+
+  async findOrCreate(name: string): Promise<Brand> {
+    const brand = await this.brandsRepository.findOneBy({ name: name });
+
+    if (brand) {
+      Logger.log('Found brand: ' + brand.name);
+      return brand;
+    }
+
+    Logger.log('Creating brand: ' + name);
+    const newBrand = new Brand();
+    newBrand.name = name;
+    this.brandsRepository.insert(newBrand);
+    return await this.brandsRepository.findOneBy({ name: name });
   }
 }

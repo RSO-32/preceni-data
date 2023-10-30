@@ -16,6 +16,10 @@ export class Seller {
   @OneToMany(() => Price, (price) => price.seller)
   prices: Price[];
 
-  @OneToMany(() => ProductToSeller, (productToSeller) => productToSeller.seller)
+  @OneToMany(
+    () => ProductToSeller,
+    (productToSeller) => productToSeller.seller,
+    { cascade: true },
+  )
   products: ProductToSeller[];
 }

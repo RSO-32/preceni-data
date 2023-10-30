@@ -3,11 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { SellersController } from './sellers/sellers.controller';
-import { BrandsController } from './brands/brands.controller';
-import { PricesController } from './prices/prices.controller';
-import { CategoriesController } from './categories/categories.controller';
-import { ProductsController } from './products/products.controller';
+import { BrandsModule } from './brands/brands.module';
+import { CategoriesModule } from './categories/categories.module';
+import { PricesModule } from './prices/prices.module';
+import { ProductsModule } from './products/products.module';
+import { SellersModule } from './sellers/sellers.module';
+import { ScraperModule } from './scraper/scraper.module';
+
 
 @Module({
   imports: [
@@ -19,11 +21,18 @@ import { ProductsController } from './products/products.controller';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: ["dist/**/*.entity{.ts,.js}"],
-      synchronize: true
+      entities: ['dist/**/*.entity{.ts,.js}'],
+      synchronize: true,
     }),
+    BrandsModule,
+    CategoriesModule,
+    PricesModule,
+    ProductsModule,
+    SellersModule,
+    ScraperModule
+    ,
   ],
-  controllers: [AppController, SellersController, BrandsController, PricesController, CategoriesController, ProductsController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
