@@ -1,8 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
-from flask_restful import Resource, Api, reqparse
+from flask_restful import Api
 from dotenv import load_dotenv
-
 from os.path import join, dirname
 import logging
 import sys
