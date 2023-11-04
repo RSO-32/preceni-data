@@ -13,9 +13,34 @@ spec:
         app: preceni-data
     spec:
       containers:
-        - image: vidvidex/preceni-data:1.0.0
+        - image: vidvidex/preceni-data:2023-11-04-13-10-00
           name: preceni-data
-          # env: to be changed later
+          env:
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: database-name
+                key: db-name
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: database-host
+                key: db-host
+          - name: DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name: database-port
+                key: db-port
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: database-user
+                key: db-user
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: database-password
+                key: db-password
           ports:
             - containerPort: 3000
               name: server
