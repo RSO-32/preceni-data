@@ -42,20 +42,34 @@ spec:
                 name: database-password
                 key: db-password
           ports:
-            - containerPort: 3000
-              name: server
+            - containerPort: 5000
+              name: preceni-data
+
+        - image: vidvidex/preceni-scrape:2023-11-05-16-22-11
+          name: preceni-scrape
+          env:
+          - name: REQUESTS_DELAY
+            valueFrom:
+              secretKeyRef:
+                name: request-delay
+                key: req-delay
+          - name: DODAJ_IZDELEK_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: addproduct-endpoint
+                key: addprod-endpoint
 
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: preceni-data-lb
+  name: preceni-lb
 spec:
   type: LoadBalancer
   ports:
-    - port: 3000
+    - port: 5000
       protocol: TCP
-      targetPort: server
+      targetPort: preceni-data
   selector:
     app: preceni-data
