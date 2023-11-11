@@ -8,6 +8,7 @@ import sys
 from models.seller import SellerController
 from models.product import ProductController, ProductsController
 from database import Database
+from os import environ
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -36,3 +37,10 @@ def create_tables():
 def drop_tables():
     Database.drop_tables()
     return "Tables dropped"
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=environ.get("DATA_SERVICE_PORT"),
+        debug=environ.get("DATA_SERVICE_DEBUG"),
+    )
