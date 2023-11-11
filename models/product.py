@@ -1,4 +1,3 @@
-from config import Config
 import logging
 from flask_restful import Resource
 from flask import request
@@ -8,6 +7,9 @@ from models.seller import Seller
 from models.brand import Brand
 from dataclasses import dataclass
 from datetime import datetime
+import requests
+from os import environ
+from config import Config
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -50,7 +52,20 @@ class ProductsController(Resource):
                     categories,
                 )
 
+            previous_last_price = product.get_latest_price()
             product.add_price(timestamp, price, seller)
+
+            if previous_last_price is not None and previous_last_price.price > price:
+                requests.post(
+                    environ.get("NOTIFY_URL"),
+                    json={
+                        "product_id": product.id,
+                        "product_name": product.get_name(),
+                        "current_price": price,
+                        "previous_price": previous_last_price.price,
+                        "seller": seller.name,
+                    },
+                )
 
         return 201
 
@@ -167,3 +182,27 @@ class Product:
         query = "INSERT INTO prices (datetime, product_id, seller_id, price) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING"
         cursor.execute(query, (datetime, self.id, seller.id, price))
         Config.conn.commit()
+
+    def get_latest_price(self):
+        logging.info(f"Getting latest price for product {self.id}")
+
+        cursor = Config.conn.cursor()
+        query = """
+        SELECT prices.datetime, prices.price, sellers.name FROM prices
+            JOIN sellers ON prices.seller_id = sellers.id
+        WHERE prices.product_id = %s ORDER BY prices.datetime DESC LIMIT 1"""
+        cursor.execute(query, (self.id,))
+        result = cursor.fetchone()
+
+        if result is None:
+            return None
+
+        return Price(result[0], result[1], result[2])
+
+    def get_name(self):
+        cursor = Config.conn.cursor()
+        query = "SELECT seller_name FROM product_sellers WHERE product_id = %s LIMIT 1"
+        cursor.execute(query, (self.id,))
+        result = cursor.fetchone()
+
+        return result[0]
