@@ -4,3 +4,4 @@ Flask-Cors
 flask-restful
 psycopg2-binary
 python-dotenv
+psutil

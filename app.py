@@ -9,6 +9,7 @@ from models.seller import SellerController
 from models.product import ProductController, ProductsController
 from database import Database
 from health import Health
+from metrics import Metrics
 from os import environ
 
 app = Flask(__name__)
@@ -43,6 +44,17 @@ def health_test():
     return Health.checkTest()
 
 
+@app.route("/metrics")
+def metrics():
+    metrics = Metrics.get_metrics()
+
+    response = ""
+    for metric in metrics:
+        response += f"{metric.name} {metric.value}\n"
+
+    return response
+
+
 @app.route("/database/create")
 def create_tables():
     Database.create_tables()
@@ -56,6 +68,7 @@ def drop_tables():
 
 
 if __name__ == "__main__":
+    Metrics.init()
     app.run(
         host="0.0.0.0",
         port=environ.get("DATA_SERVICE_PORT"),
