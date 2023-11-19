@@ -34,7 +34,7 @@ class ProductsController(Resource):
             seller = product_data["seller"]
             seller_product_id = product_data["seller_product_id"]
             seller_product_name = product_data["seller_product_name"]
-            price = product_data["price"]
+            price = float(product_data["price"])
             categories = product_data["categories"]
             brand = product_data["brand"]
 
