@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: preceni-data-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: preceni-data
+  template:
+    metadata:
+      labels:
+        app: preceni-data
+    spec:
+      containers:
+        - image: vidvidex/preceni-data:2023-11-19-18-02-10
+          name: preceni-data
+          env:
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: database-name
+                key: db-name
+
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: database-host
+                key: db-host
+
+          - name: DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name: database-port
+                key: db-port
+
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: database-user
+                key: db-user
+
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: database-password
+                key: db-password
+
+          - name: DATA_SERVICE_PORT
+            valueFrom:
+              secretKeyRef:
+                name: data-port
+                key: data-service-port
+
+          - name: DATA_SERVICE_DEBUG
+            valueFrom:
+              secretKeyRef:
+                name: data-debug
+                key: data-service-debug
+                
+          - name: NOTIFY_URL
+            valueFrom:
+              secretKeyRef:
+                name: noti-url
+                key: notify-url
+          ports:
+            - containerPort: 5000
+              name: preceni-data
+
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: preceni-data
+            failureThreshold: 2
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /health/live
+              port: preceni-data
+            failureThreshold: 2
+            initialDelaySeconds: 20
+            periodSeconds: 30
+
+        - image: vidvidex/preceni-scrape:2023-11-11-21-40-41
+          name: preceni-scrape
+          env:
+          - name: REQUESTS_DELAY
+            valueFrom:
+              secretKeyRef:
+                name: request-delay
+                key: req-delay
+          - name: DODAJ_IZDELEK_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: addproduct-endpoint
+                key: addprod-endpoint
+
+      
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: preceni-lb
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5000
+      protocol: TCP
+      targetPort: preceni-data
+  selector:
+    app: preceni-data
