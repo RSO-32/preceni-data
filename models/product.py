@@ -243,11 +243,17 @@ class Product:
         return result[0]
 
 
+    def priceToJSON(self, price):
+        return {
+            "datetime": price.datetime.isoformat(),
+            "price": price.price,
+            "seller": price.seller,
+        }
+
     def toJSON(self):
         return {
             "id": self.id,
-            "name": self.name,
             "brand": self.brand,
             "categories": [category.toJSON() for category in self.categories],
-            "prices": [price.toJSON() for price in self.prices],
+            "prices": [self.priceToJSON(price) for price in self.prices],
         }
