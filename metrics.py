@@ -9,6 +9,8 @@ class Metric:
 
 
 class Metrics:
+    start_time : float
+
     @staticmethod
     def init():
         Metrics.start_time = time.time()
