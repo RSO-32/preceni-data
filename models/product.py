@@ -25,6 +25,11 @@ class ProductController(Resource):
 
 
 class ProductsController(Resource):
+    def get(self):
+        products = Product.get_all()
+
+        return products, 200
+
     def put(self):
         data = request.get_json()
 
@@ -83,6 +88,28 @@ class Product:
     brand: str
     categories: list[Category]
     prices: list[Price]
+
+    @staticmethod
+    def get_all():
+        cursor = Config.conn.cursor()
+        query = """
+        SELECT products.id, brands.name FROM products 
+            JOIN brands ON products.brand_id = brands.id"""
+        cursor.execute(query, (id,))
+        product_result = cursor.fetchall()
+
+        products = []
+
+        for row in product_result:
+            products.append(
+                Product(
+                    row[0],
+                    row[1],
+                    Product.get_categories(row[0]),
+                    Product.get_prices(row[0]),
+                )
+            )
+        return products
 
     @staticmethod
     def get(id):
