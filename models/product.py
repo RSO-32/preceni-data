@@ -91,6 +91,8 @@ class Product:
 
     @staticmethod
     def get_all():
+        logging.info("GET: All products")
+
         cursor = Config.conn.cursor()
         query = """
         SELECT products.id, brands.name FROM products 
@@ -113,6 +115,8 @@ class Product:
 
     @staticmethod
     def get(id):
+        logging.info(f"GET: Product {id}")
+
         cursor = Config.conn.cursor()
         query = """
         SELECT products.id, brands.name FROM products 

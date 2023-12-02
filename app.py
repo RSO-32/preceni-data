@@ -31,6 +31,7 @@ api.add_resource(ProductsController, "/product")
 
 @app.route("/health/live")
 def health_live():
+    logging.info("GET: Health live check")
     status, checks = Health.check_health()
     code = 200 if status == "UP" else 503
 
@@ -39,6 +40,7 @@ def health_live():
 
 @app.route("/health/test/toggle", methods=["PUT"])
 def health_test():
+    logging.info("PUT: Health test toggle")
     Health.force_fail = not Health.force_fail
 
     return Health.checkTest()
@@ -46,6 +48,7 @@ def health_test():
 
 @app.route("/metrics")
 def metrics():
+    logging.info("GET: Metrics")
     metrics = Metrics.get_metrics()
 
     response = ""
@@ -57,12 +60,14 @@ def metrics():
 
 @app.route("/database/create")
 def create_tables():
+    logging.info("GET: Create tables")
     Database.create_tables()
     return "Tables created"
 
 
 @app.route("/database/drop")
 def drop_tables():
+    logging.info("GET: Drop tables")
     Database.drop_tables()
     return "Tables dropped"
 
