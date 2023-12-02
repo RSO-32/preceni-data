@@ -21,14 +21,18 @@ class ProductController(Resource):
         if product is None:
             return {"message": "Product not found"}, 404
 
-        return product, 200
+        return product.toJSON(), 200
 
 
 class ProductsController(Resource):
     def get(self):
         products = Product.get_all()
 
-        return products, 200
+        resp = []
+        for product in products:
+            resp.append(product.toJSON())
+
+        return resp, 200
 
     def put(self):
         data = request.get_json()
@@ -237,3 +241,13 @@ class Product:
         result = cursor.fetchone()
 
         return result[0]
+
+
+    def toJSON(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "brand": self.brand,
+            "categories": [category.toJSON() for category in self.categories],
+            "prices": [price.toJSON() for price in self.prices],
+        }
