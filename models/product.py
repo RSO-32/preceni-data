@@ -10,34 +10,38 @@ from datetime import datetime
 import requests
 from os import environ
 from config import Config
+from uuid import uuid4
 
 
 class ProductController(Resource):
     def get(self, id):
-        app.logger.info("START: GET /product/<id>")
+        uuid = uuid4()
+        app.logger.info(f"START: GET /product/<id> [{uuid}]")
         product = Product.get(id)
 
         if product is None:
             return {"message": "Product not found"}, 404
 
-        app.logger.info("END: GET /product/<id>")
+        app.logger.info(f"END: GET /product/<id> [{uuid}]")
         return product.toJSON(), 200
 
 
 class ProductsController(Resource):
     def get(self):
-        app.logger.info("START: GET /products")
+        uuid = uuid4()
+        app.logger.info(f"START: GET /products [{uuid}]")
         products = Product.get_all()
 
         resp = []
         for product in products:
             resp.append(product.toJSON())
 
-        app.logger.info("END: GET /products")
+        app.logger.info(f"END: GET /products [{uuid}]")
         return resp, 200
 
     def put(self):
-        app.logger.info("START: PUT /products")
+        uuid = uuid4()
+        app.logger.info(f"START: PUT /products [{uuid}]")
         data = request.get_json()
 
         for product_data in data:
@@ -79,7 +83,7 @@ class ProductsController(Resource):
                     },
                 )
 
-        app.logger.info("END: PUT /products")
+        app.logger.info(f"END: PUT /products [{uuid}]")
         return 201
 
 

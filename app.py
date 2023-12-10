@@ -10,7 +10,6 @@ from health import Health
 from metrics import Metrics
 from os import environ
 import logging, graypy
-from uuid import uuid4
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -19,7 +18,7 @@ api = Api(app)
 # Logging
 graylog_handler = graypy.GELFUDPHandler("logs.meteo.pileus.si", 12201)
 environment = 'dev' if environ.get("DATA_SERVICE_DEBUG") else 'prod'
-graylog_handler.setFormatter(logging.Formatter(f"preceni-data {environment} %(asctime)s %(levelname)s %(name)s %(message)s [{uuid4()}]"))
+graylog_handler.setFormatter(logging.Formatter(f"preceni-data {environment} %(asctime)s %(levelname)s %(name)s %(message)s"))
 app.logger.addHandler(graylog_handler)
 app.logger.setLevel(logging.INFO)
 

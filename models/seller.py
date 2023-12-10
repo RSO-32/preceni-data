@@ -2,10 +2,14 @@ from config import Config
 from flask import current_app as app
 from flask_restful import Resource
 from dataclasses import dataclass
+from uuid import uuid4
 
 
 class SellerController(Resource):
     def get(self, id):
+        uuid = uuid4()
+        app.logger.info(f"START: GET /seller/<id> [{uuid}]")
+        app.logger.info(f"END: GET /seller/<id> [{uuid}]")
         return Seller.get(id).toJSON(), 200
 
 
