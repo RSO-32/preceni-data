@@ -1,10 +1,6 @@
 from config import Config
-import logging
-import sys
 from dataclasses import dataclass
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-
+from flask import current_app as app
 
 @dataclass
 class Brand:
@@ -22,7 +18,7 @@ class Brand:
 
     @staticmethod
     def create(name: str):
-        logging.info(f"Creating brand {name} if it doesn't exist")
+        app.logger.info(f"Creating brand {name} if it doesn't exist")
 
         cursor = Config.conn.cursor()
         query = "INSERT INTO brands (name) VALUES (%s) ON CONFLICT (name) DO NOTHING RETURNING *"

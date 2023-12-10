@@ -1,9 +1,6 @@
 from config import Config
-import logging
-import sys
 from dataclasses import dataclass
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+from flask import current_app as app
 
 
 @dataclass
@@ -22,7 +19,7 @@ class Category:
 
     @staticmethod
     def create(name: str):
-        logging.info(f"Creating category {name} if it doesn't exist")
+        app.logger.info(f"Creating category {name} if it doesn't exist")
 
         cursor = Config.conn.cursor()
         query = "INSERT INTO categories (name) VALUES (%s) ON CONFLICT (name) DO NOTHING RETURNING *"

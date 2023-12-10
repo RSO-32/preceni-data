@@ -1,4 +1,4 @@
-import logging
+from flask import current_app as app
 from flask_restful import Resource
 from flask import request
 import sys
@@ -11,34 +11,37 @@ import requests
 from os import environ
 from config import Config
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-
 
 class ProductController(Resource):
     def get(self, id):
+        app.logger.info("START: GET /product/<id>")
         product = Product.get(id)
 
         if product is None:
             return {"message": "Product not found"}, 404
 
+        app.logger.info("END: GET /product/<id>")
         return product.toJSON(), 200
 
 
 class ProductsController(Resource):
     def get(self):
+        app.logger.info("START: GET /products")
         products = Product.get_all()
 
         resp = []
         for product in products:
             resp.append(product.toJSON())
 
+        app.logger.info("END: GET /products")
         return resp, 200
 
     def put(self):
+        app.logger.info("START: PUT /products")
         data = request.get_json()
 
         for product_data in data:
-            logging.info(product_data)
+            app.logger.info(product_data)
             timestamp = datetime.fromisoformat(product_data["timestamp"])
             seller = product_data["seller"]
             seller_product_id = product_data["seller_product_id"]
@@ -76,6 +79,7 @@ class ProductsController(Resource):
                     },
                 )
 
+        app.logger.info("END: PUT /products")
         return 201
 
 
@@ -95,7 +99,7 @@ class Product:
 
     @staticmethod
     def get_all():
-        logging.info("GET: All products")
+        app.logger.info("GET: All products")
 
         cursor = Config.conn.cursor()
         query = """
@@ -119,7 +123,7 @@ class Product:
 
     @staticmethod
     def get(id):
-        logging.info(f"GET: Product {id}")
+        app.logger.info(f"GET: Product {id}")
 
         cursor = Config.conn.cursor()
         query = """
@@ -147,9 +151,7 @@ class Product:
         brand: Brand,
         categories: list[Category],
     ):
-        logging.info(
-            f"Creating product {seller_name} with brand {brand.id} for seller {seller.id}"
-        )
+        app.logger.info(f"Creating product {seller_name} with brand {brand.id} for seller {seller.id}")
 
         cursor = Config.conn.cursor()
         query = "INSERT INTO products (brand_id) VALUES (%s) RETURNING id"
@@ -169,9 +171,7 @@ class Product:
 
     @staticmethod
     def find_by_sellers_id(product_seller_id, seller: Seller):
-        logging.info(
-            f"Finding product by seller's id {product_seller_id} for seller {seller.id}"
-        )
+        app.logger.info(f"Finding product by seller's id {product_seller_id} for seller {seller.id}")
 
         cursor = Config.conn.cursor()
         query = "SELECT product_id FROM product_sellers WHERE seller_product_id = %s AND seller_id = %s"
@@ -184,7 +184,7 @@ class Product:
 
     @staticmethod
     def get_categories(product_id):
-        logging.info(f"Getting categories for product {product_id}")
+        app.logger.info(f"Getting categories for product {product_id}")
 
         cursor = Config.conn.cursor()
         query = """
@@ -198,7 +198,7 @@ class Product:
 
     @staticmethod
     def get_prices(product_id):
-        logging.info(f"Getting prices for product {product_id}")
+        app.logger.info(f"Getting prices for product {product_id}")
 
         cursor = Config.conn.cursor()
         query = """
@@ -211,15 +211,17 @@ class Product:
         return [Price(row[0], row[1], row[2]) for row in result]
 
     def add_price(self, datetime: datetime, price: float, seller: Seller):
-        logging.info(f"Adding price {price} at {datetime} for product {self.id}")
+        app.logger.info(f"Adding price {price} at {datetime} for product {self.id}")
 
         cursor = Config.conn.cursor()
-        query = "INSERT INTO prices (datetime, product_id, seller_id, price) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING"
+        query = (
+            "INSERT INTO prices (datetime, product_id, seller_id, price) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING"
+        )
         cursor.execute(query, (datetime, self.id, seller.id, price))
         Config.conn.commit()
 
     def get_latest_price(self):
-        logging.info(f"Getting latest price for product {self.id}")
+        app.logger.info(f"Getting latest price for product {self.id}")
 
         cursor = Config.conn.cursor()
         query = """
@@ -241,7 +243,6 @@ class Product:
         result = cursor.fetchone()
 
         return result[0]
-
 
     def priceToJSON(self, price):
         return {

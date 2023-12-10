@@ -3,25 +3,31 @@ from flask_cors import CORS
 from flask_restful import Api
 from dotenv import load_dotenv
 from os.path import join, dirname
-import logging
-import sys
 from models.seller import SellerController
 from models.product import ProductController, ProductsController
 from database import Database
 from health import Health
 from metrics import Metrics
 from os import environ
+import logging, graypy
+from uuid import uuid4
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 api = Api(app)
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+# Logging
+graylog_handler = graypy.GELFUDPHandler("logs.meteo.pileus.si", 12201)
+environment = 'dev' if environ.get("DATA_SERVICE_DEBUG") else 'prod'
+graylog_handler.setFormatter(logging.Formatter(f"preceni-data {environment} %(asctime)s %(levelname)s %(name)s %(message)s [{uuid4()}]"))
+app.logger.addHandler(graylog_handler)
+app.logger.setLevel(logging.INFO)
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 
 Database.connect()
+app.logger.info("Connected to database")
 
 
 api.add_resource(SellerController, "/seller/<id>")
@@ -31,7 +37,7 @@ api.add_resource(ProductsController, "/product")
 
 @app.route("/health/live")
 def health_live():
-    logging.info("GET: Health live check")
+    app.logger.info("GET: Health live check")
     status, checks = Health.check_health()
     code = 200 if status == "UP" else 503
 
@@ -40,7 +46,7 @@ def health_live():
 
 @app.route("/health/test/toggle", methods=["PUT"])
 def health_test():
-    logging.info("PUT: Health test toggle")
+    app.logger.info("PUT: Health test toggle")
     Health.force_fail = not Health.force_fail
 
     return Health.checkTest()
@@ -48,7 +54,7 @@ def health_test():
 
 @app.route("/metrics")
 def metrics():
-    logging.info("GET: Metrics")
+    app.logger.info("GET: Metrics")
     metrics = Metrics.get_metrics()
 
     response = ""
@@ -60,14 +66,14 @@ def metrics():
 
 @app.route("/database/create")
 def create_tables():
-    logging.info("GET: Create tables")
+    app.logger.info("GET: Create tables")
     Database.create_tables()
     return "Tables created"
 
 
 @app.route("/database/drop")
 def drop_tables():
-    logging.info("GET: Drop tables")
+    app.logger.info("GET: Drop tables")
     Database.drop_tables()
     return "Tables dropped"
 

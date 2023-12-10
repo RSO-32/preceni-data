@@ -1,10 +1,7 @@
 from config import Config
-import logging
+from flask import current_app as app
 from flask_restful import Resource
-import sys
 from dataclasses import dataclass
-
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class SellerController(Resource):
@@ -28,7 +25,7 @@ class Seller:
 
     @staticmethod
     def create(name: str):
-        logging.info(f"Creating seller {name} if it doesn't exist")
+        app.logger.info(f"Creating seller {name} if it doesn't exist")
 
         cursor = Config.conn.cursor()
         query = "INSERT INTO sellers (name) VALUES (%s) ON CONFLICT (name) DO NOTHING RETURNING id"

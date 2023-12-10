@@ -1,8 +1,7 @@
 from config import Config
 from os import environ
 import psycopg2
-import logging
-
+from flask import current_app as app
 
 class Database:
     @staticmethod
@@ -15,13 +14,11 @@ class Database:
             port=environ.get("DB_PORT"),
         )
 
-    logging.info("Initialized database connection")
-
     @staticmethod
     def create_tables():
         cursor = Config.conn.cursor()
 
-        logging.info("Creating tables")
+        app.logger.info("Creating tables")
 
         cursor.execute(
             """create table if not exists users (
@@ -123,7 +120,7 @@ class Database:
     def drop_tables():
         cursor = Config.conn.cursor()
 
-        logging.info("Dropping tables")
+        app.logger.info("Dropping tables")
 
         cursor.execute("DROP TABLE IF EXISTS prices CASCADE")
         cursor.execute("DROP TABLE IF EXISTS product_sellers CASCADE")
