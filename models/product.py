@@ -1,90 +1,10 @@
 from flask import current_app as app
-from flask_restful import Resource
-from flask import request
-import sys
 from models.category import Category
 from models.seller import Seller
 from models.brand import Brand
 from dataclasses import dataclass
 from datetime import datetime
-import requests
-from os import environ
 from config import Config
-from uuid import uuid4
-
-
-class ProductController(Resource):
-    def get(self, id):
-        uuid = uuid4()
-        app.logger.info(f"START: GET /product/<id> [{uuid}]")
-        product = Product.get(id)
-
-        if product is None:
-            return {"message": "Product not found"}, 404
-
-        app.logger.info(f"END: GET /product/<id> [{uuid}]")
-        return product.toJSON(), 200
-
-
-class ProductsController(Resource):
-    def get(self):
-        uuid = uuid4()
-        app.logger.info(f"START: GET /products [{uuid}]")
-        products = Product.get_all()
-
-        resp = []
-        for product in products:
-            resp.append(product.toJSON())
-
-        app.logger.info(f"END: GET /products [{uuid}]")
-        return resp, 200
-
-    def put(self):
-        uuid = uuid4()
-        app.logger.info(f"START: PUT /products [{uuid}]")
-        data = request.get_json()
-
-        for product_data in data:
-            app.logger.info(product_data)
-            timestamp = datetime.fromisoformat(product_data["timestamp"])
-            seller = product_data["seller"]
-            seller_product_id = product_data["seller_product_id"]
-            seller_product_name = product_data["seller_product_name"]
-            price = float(product_data["price"])
-            categories = product_data["categories"]
-            brand = product_data["brand"]
-
-            seller = Seller.create(seller)
-            brand = Brand.create(brand)
-            categories = [Category.create(category) for category in categories]
-
-            product = Product.find_by_sellers_id(seller_product_id, seller)
-            if product is None:
-                product = Product.create(
-                    seller,
-                    seller_product_id,
-                    seller_product_name,
-                    brand,
-                    categories,
-                )
-
-            previous_last_price = product.get_latest_price()
-            product.add_price(timestamp, price, seller)
-
-            if previous_last_price is not None and previous_last_price.price > price:
-                requests.post(
-                    environ.get("NOTIFY_URL"),
-                    json={
-                        "product_id": product.id,
-                        "product_name": product.get_name(),
-                        "current_price": price,
-                        "previous_price": previous_last_price.price,
-                        "seller": seller.name,
-                    },
-                )
-
-        app.logger.info(f"END: PUT /products [{uuid}]")
-        return 201
 
 
 @dataclass
