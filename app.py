@@ -142,7 +142,40 @@ def get_products():
     return resp, 200
 
 
-@app.put("/products", tags=[products_tag], summary="Update products")
+@app.post("/products", tags=[products_tag], summary="Create product from barcode")
+def post_products():
+    uuid = uuid4()
+    app.logger.info(f"START: POST /products [{uuid}]")
+    data = request.get_json()
+    barcode = data["barcode"]
+
+    headers = {
+        "X-RapidAPI-Key": environ.get("RAPIDAPI_KEY"),
+        "X-RapidAPI-Host": "barcodes1.p.rapidapi.com",
+    }
+    response = requests.get("https://barcodes1.p.rapidapi.com", headers=headers, params={"query": barcode}).json()
+
+    brand = Brand.create(response["product"]["manufacturer"])
+    categories = [Category.create(category) for category in response["product"]["category"]]
+
+    seller_info = response["product"]["online_stores"][0]
+    seller = Seller.create(seller_info["name"])
+    product = Product.create(
+        seller,
+        seller_info["name"] + response["product"]["title"],
+        response["product"]["title"],
+        brand,
+        categories,
+    )
+    price = float(seller_info["price"].replace("€", ""))
+    product.add_price(datetime.now(), price, seller)
+
+    app.logger.info(f"END: POST /products [{uuid}]")
+
+    return product.toJSON(), 201
+
+
+@app.put("/products", tags=[products_tag], summary="Create or update products")
 def put_products():
     uuid = uuid4()
     app.logger.info(f"START: PUT /products [{uuid}]")

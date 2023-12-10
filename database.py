@@ -98,7 +98,7 @@ class Database:
             """create table if not exists product_sellers (
             product_id integer,
             seller_id integer,
-            seller_product_id integer not null,
+            seller_product_id text not null,
             seller_name text not null,
             primary key (product_id, seller_id),
             foreign key (product_id) REFERENCES products(id),
