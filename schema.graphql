@@ -1,0 +1,38 @@
+schema {
+    query: Query
+}
+
+type Product {
+    id: ID!
+    brand: String!
+    categories: [Category]
+    prices: [Price]
+}
+
+type Category {
+    id: ID!
+    name: String!
+}
+
+type Price {
+    datetime: String!
+    price: Float!
+    seller: String!
+}
+
+type ProductResult {
+    success: Boolean!
+    errors: [String]
+    post: Product
+}
+
+type ProductsResult {
+    success: Boolean!
+    errors: [String]
+    products: [Product]
+}
+
+type Query {
+    listProducts: ProductsResult!
+    getProduct(id: ID!): ProductResult!
+}

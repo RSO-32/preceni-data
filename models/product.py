@@ -7,6 +7,20 @@ from datetime import datetime
 from config import Config
 
 
+def listProducts_resolver(obj, info):
+    try:
+        products = [product.toJSON() for product in Product.get_all()]
+        payload = {
+            "success": True,
+            "products": products
+        }
+    except Exception as error:
+        payload = {
+            "success": False,
+            "errors": [str(error)]
+        }
+    return payload
+
 @dataclass
 class Price:
     datetime: datetime
