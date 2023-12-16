@@ -128,7 +128,7 @@ def get_product(path: ProductPath):
     return product.toJSON(), 200
 
 
-@app.get("/products", tags=[products_tag], summary="Get all products", responses={200: ProductsResponse})
+@app.get("/data/products", tags=[products_tag], summary="Get all products", responses={200: ProductsResponse})
 def get_products():
     uuid = uuid4()
     app.logger.info(f"START: GET /products [{uuid}]")
