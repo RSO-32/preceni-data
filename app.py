@@ -71,7 +71,7 @@ class ProductsResponse(BaseModel):
     products: list[ProductResponse]
 
 
-@app.get("/health/live", tags=[health_tag], summary="Health live check")
+@app.get("/data/health/live", tags=[health_tag], summary="Health live check")
 def health_live():
     app.logger.info("GET: Health live check")
     status, checks = Health.check_health()
@@ -80,7 +80,7 @@ def health_live():
     return jsonify({"status": status, "checks": checks}), code
 
 
-@app.put("/health/test/toggle", tags=[health_tag], summary="Health test toggle")
+@app.put("/data/health/test/toggle", tags=[health_tag], summary="Health test toggle")
 def health_test():
     app.logger.info("PUT: Health test toggle")
     Health.force_fail = not Health.force_fail
@@ -88,7 +88,7 @@ def health_test():
     return Health.checkTest()
 
 
-@app.get("/metrics", tags=[health_tag], summary="Metrics")
+@app.get("/data/metrics", tags=[health_tag], summary="Metrics")
 def metrics():
     app.logger.info("GET: Metrics")
     metrics = Metrics.get_metrics()
@@ -100,21 +100,21 @@ def metrics():
     return response
 
 
-@app.get("/database/create", tags=[database_tag], summary="Create tables")
+@app.get("/data/database/create", tags=[database_tag], summary="Create tables")
 def create_tables():
     app.logger.info("GET: Create tables")
     Database.create_tables()
     return "Tables created"
 
 
-@app.get("/database/drop", tags=[database_tag], summary="Drop tables")
+@app.get("/data/database/drop", tags=[database_tag], summary="Drop tables")
 def drop_tables():
     app.logger.info("GET: Drop tables")
     Database.drop_tables()
     return "Tables dropped"
 
 
-@app.get("/products/<int:id>", tags=[products_tag], summary="Get product by id", responses={200: ProductResponse})
+@app.get("/data/products/<int:id>", tags=[products_tag], summary="Get product by id", responses={200: ProductResponse})
 def get_product(path: ProductPath):
     id = path.id
     uuid = uuid4()
@@ -142,7 +142,7 @@ def get_products():
     return resp, 200
 
 
-@app.post("/products", tags=[products_tag], summary="Create product from barcode")
+@app.post("/data/products", tags=[products_tag], summary="Create product from barcode")
 def post_products():
     uuid = uuid4()
     app.logger.info(f"START: POST /products [{uuid}]")
@@ -175,7 +175,7 @@ def post_products():
     return product.toJSON(), 201
 
 
-@app.put("/products", tags=[products_tag], summary="Create or update products")
+@app.put("/data/products", tags=[products_tag], summary="Create or update products")
 def put_products():
     uuid = uuid4()
     app.logger.info(f"START: PUT /products [{uuid}]")
