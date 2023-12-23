@@ -113,7 +113,7 @@ class Product:
 
         cursor = Config.conn.cursor()
         query = "SELECT product_id FROM product_sellers WHERE seller_product_id = %s AND seller_id = %s"
-        cursor.execute(query, (product_seller_id, seller.id))
+        cursor.execute(query, (str(product_seller_id), seller.id))
 
         result = cursor.fetchone()
         if result is None:

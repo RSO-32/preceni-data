@@ -218,19 +218,23 @@ def put_products():
         product.add_price(timestamp, price, seller)
 
         if previous_last_price is not None and previous_last_price.price > price:
-            requests.post(
-                environ.get("NOTIFY_URL"),
-                json={
-                    "product_id": product.id,
-                    "product_name": product.get_name(),
-                    "current_price": price,
-                    "previous_price": previous_last_price.price,
-                    "seller": seller.name,
-                },
-            )
+            try:
+                requests.post(
+                    environ.get("NOTIFY_URL"),
+                    json={
+                        "product_id": product.id,
+                        "product_name": product.get_name(),
+                        "current_price": price,
+                        "previous_price": previous_last_price.price,
+                        "seller": seller.name,
+                    },
+                )
+            except Exception as e:
+                app.logger.error("Failed to notify, is notify service up?")
 
     app.logger.info(f"END: PUT /products [{uuid}]")
-    return 201
+    return "Products updated", 200
+
 
 query = ObjectType("Query")
 query.set_field("listProducts", listProducts_resolver)
