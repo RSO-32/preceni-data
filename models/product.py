@@ -32,6 +32,8 @@ class Price:
 class Product:
     id: int
     brand: str
+    name: str
+    image_url: str
     categories: list[Category]
     prices: list[Price]
 
@@ -41,8 +43,9 @@ class Product:
 
         cursor = Config.conn.cursor()
         query = """
-        SELECT products.id, brands.name FROM products 
-            JOIN brands ON products.brand_id = brands.id"""
+        SELECT products.id, brands.name, product_sellers.seller_name, product_sellers.image_url FROM products
+                                         JOIN brands ON products.brand_id = brands.id
+                                         JOIN product_sellers  ON products.id = product_sellers.product_id"""
         cursor.execute(query, (id,))
         product_result = cursor.fetchall()
 
@@ -53,6 +56,8 @@ class Product:
                 Product(
                     row[0],
                     row[1],
+                    row[2],
+                    row[3],
                     Product.get_categories(row[0]),
                     Product.get_prices(row[0]),
                 )
@@ -65,8 +70,9 @@ class Product:
 
         cursor = Config.conn.cursor()
         query = """
-        SELECT products.id, brands.name FROM products 
-            JOIN brands ON products.brand_id = brands.id    
+        SELECT products.id, brands.name, product_sellers.seller_name, product_sellers.image_url FROM products
+                                         JOIN brands ON products.brand_id = brands.id
+                                         JOIN product_sellers  ON products.id = product_sellers.product_id
         WHERE products.id = %s"""
         cursor.execute(query, (id,))
         product_result = cursor.fetchone()
@@ -77,6 +83,8 @@ class Product:
         return Product(
             product_result[0],
             product_result[1],
+            product_result[2],
+            product_result[3],
             Product.get_categories(id),
             Product.get_prices(id),
         )
@@ -86,6 +94,7 @@ class Product:
         seller: Seller,
         seller_product_id: str,
         seller_name: str,
+        image_url: str,
         brand: Brand,
         categories: list[Category],
     ):
@@ -96,8 +105,8 @@ class Product:
         cursor.execute(query, (brand.id,))
         product_id = cursor.fetchone()[0]
 
-        query = "INSERT INTO product_sellers (product_id, seller_id, seller_product_id, seller_name) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING"
-        cursor.execute(query, (product_id, seller.id, seller_product_id, seller_name))
+        query = "INSERT INTO product_sellers (product_id, seller_id, seller_product_id, seller_name, image_url) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING"
+        cursor.execute(query, (product_id, seller.id, seller_product_id, seller_name, image_url))
 
         for category in categories:
             query = "INSERT INTO product_categories (product_id, category_id) VALUES (%s, %s) ON CONFLICT DO NOTHING"
@@ -193,6 +202,8 @@ class Product:
         return {
             "id": self.id,
             "brand": self.brand,
+            "name": self.name,
+            "image_url": self.image_url,
             "categories": [category.toJSON() for category in self.categories],
             "prices": [self.priceToJSON(price) for price in self.prices],
         }

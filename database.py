@@ -100,6 +100,7 @@ class Database:
             seller_id integer,
             seller_product_id text not null,
             seller_name text not null,
+            image_url text,
             primary key (product_id, seller_id),
             foreign key (product_id) REFERENCES products(id),
             foreign key (seller_id) REFERENCES sellers(id))"""
