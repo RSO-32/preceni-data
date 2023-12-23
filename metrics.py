@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import time, shutil, psutil
+import shutil, psutil
 
 
 @dataclass
@@ -9,19 +9,12 @@ class Metric:
 
 
 class Metrics:
-    start_time : float
-
-    @staticmethod
-    def init():
-        Metrics.start_time = time.time()
-
     @staticmethod
     def get_metrics():
         metrics = []
 
         total, used, free = shutil.disk_usage("/")
 
-        metrics.append(Metric("uptime", str(time.time() - Metrics.start_time)))
         metrics.append(Metric("disk_total", str(total)))
         metrics.append(Metric("disk_used", str(used)))
         metrics.append(Metric("disk_free", str(free)))

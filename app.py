@@ -257,7 +257,6 @@ def graphql_server():
 
 
 if __name__ == "__main__":
-    Metrics.init()
     app.run(
         host="0.0.0.0",
         port=environ.get("DATA_SERVICE_PORT"),
