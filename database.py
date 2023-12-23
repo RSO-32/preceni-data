@@ -81,17 +81,10 @@ class Database:
                       user_id integer,
                       product_id integer,
                       price real not null,
+                      discord_webhook text,
                       constraint unique_user_id_product_id unique (user_id, product_id),
                       foreign key (user_id) references users(id),
                       foreign key (product_id) references products(id))"""
-        )
-
-        cursor.execute(
-            """create table if not exists user_notifications (
-                id serial primary key,
-                user_id integer,
-                discord_webhook text,
-                foreign key (user_id) references users(id))"""
         )
 
         cursor.execute(
@@ -131,7 +124,6 @@ class Database:
         cursor.execute("DROP TABLE IF EXISTS categories CASCADE")
         cursor.execute("DROP TABLE IF EXISTS brands CASCADE")
         cursor.execute("DROP TABLE IF EXISTS notifications CASCADE")
-        cursor.execute("DROP TABLE IF EXISTS user_notifications CASCADE")
         cursor.execute("DROP TABLE IF EXISTS user_tokens CASCADE")
         cursor.execute("DROP TABLE IF EXISTS users CASCADE")
 
