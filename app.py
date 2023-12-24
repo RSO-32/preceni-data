@@ -27,7 +27,7 @@ from ariadne.constants import PLAYGROUND_HTML
 from models.product import listProducts_resolver
 
 info = Info(title="Preceni data", version="1.0.0", description="Preceni data API")
-app = OpenAPI(__name__, info=info)
+app = OpenAPI(__name__, info=info, doc_prefix="/data/openapi")
 CORS(app)  # Enable CORS for all routes
 
 # Logging
