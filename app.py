@@ -48,11 +48,11 @@ app.logger.info("Connected to database")
 
 #
 # OpenAPI anotacije:
-# - summary: kratek opis
-# - description: dolg opis
-# - responses: odgovori
-# - tags: oznake
-# - parameters: parametri
+# - summary
+# - description
+# - responses
+# - tags
+# - parameters
 #
 
 products_tag = Tag(name="product", description="Product")
